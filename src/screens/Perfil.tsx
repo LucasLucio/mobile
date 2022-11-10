@@ -3,7 +3,7 @@ import { FontAwesome } from '@expo/vector-icons'
 import { useAuth } from '../hooks/useAuth'
 
 import Logo from '../assets/logo.svg';
-import { Button } from '../components/button';
+import { Button } from '../components/Button';
 import { InputCheck, InputPassword, InputText } from '../components/Input';
 
 

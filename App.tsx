@@ -6,6 +6,7 @@ import { THEME } from './src/styles/theme'
 import { Loading } from './src/components/Loading';
 import { AuthContextProvider } from './src/contexts/AuthContext';
 import { Routes } from './src/routes';
+import { Login } from './src/screens/Login';
 
 export default function App() {
 
@@ -20,7 +21,7 @@ export default function App() {
           translucent
         />
         {
-          fontsLoaded ? <Routes /> : <Loading />
+          fontsLoaded ? <Login /> : <Loading />
         }
       </AuthContextProvider>
     </NativeBaseProvider>
