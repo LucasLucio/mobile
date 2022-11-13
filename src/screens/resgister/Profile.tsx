@@ -3,65 +3,53 @@ import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 
-import Logo from '../assets/logo.svg';
-import { Button } from '../components/Button';
-import { InputCheck, InputPassword, InputText } from '../components/Input';
+import CreateLogo from '../../assets/createLogo.svg';
+import { Button } from '../../components/Button';
+import { InputCheck, InputPassword, InputText } from '../../components/Input';
 
 import {useForm, Controller} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { api } from '../services/api';
+import { api } from '../../services/api';
 import React from 'react';
-import { Dialog, DialogInform } from '../components/AlertDialog';
-import { Toast } from '../components/Toast';
-import { AppRoutes } from '../routes/app.routes';
-import { Routes } from '../routes';
+import { Dialog, DialogInform } from '../../components/AlertDialog';
+import { Toast } from '../../components/Toast';
+import { AppRoutes } from '../../routes/app.routes';
+import { Routes } from '../../routes';
 
-const schemaLogin = yup.object({
+const schemaAccount = yup.object({
   email:
     yup.string()
     .required('Informe seu E-mail.')
     .email("E-mail inválido."),
   senha:
     yup.string()
-    .required('Informa a Senha.')
+    .required('Informa a Senha.'),
+  confrimacaoSenha: yup.string()
+     .oneOf([yup.ref('senha'), null], 'As senhas não conferem')
 })
 
-export function Login({navigation}) {
+export function Profile({route, navigation}) {
+  
+  console.log(route.params);
 
   const toast = useToast();
 
   const { control, handleSubmit, formState: {errors} } = useForm({
-    resolver: yupResolver(schemaLogin)
+    resolver: yupResolver(schemaAccount)
   });
   
-  async function login(data){
-    const response = await api.post('/auth/user',data)
-    .then(async (response) => {
-      if(data.lembrar === true){
-        const jsonValue = JSON.stringify(data);
-        await AsyncStorage.setItem('@login', jsonValue);
-        await AsyncStorage.setItem('@token', response.data.token)
-      }
-      navigation.navigate('AppRoutes');
-    })
-    .catch((error) => {
-      toast.show({
-        render: () => {
-          return <Toast text={error.response.data.message} status='error' />;
-        },
-        placement: 'top'
-      });
-    });
-    
+  async function profile(data){
   }
 
     return (
         <Center flex={1} bgColor="white" padding={8}>
-          <Logo 
-            width={500}
-            height={80}
-          />
+
+            <CreateLogo 
+            width={800}
+            height={90}
+            />
+
           <Controller
             control={control}
             name='email'
@@ -93,34 +81,24 @@ export function Login({navigation}) {
 
           <Controller
             control={control}
-            name='lembrar'
+            name='confrimacaoSenha'
             render={ ({field: {onChange, value}}) => (
-              <InputCheck 
-                name='Acesso Fácil'
-                value='lembrar'
-                onChange={onChange}
+              <InputPassword
+                name='Confirmação de Senha'
+                InputLeftElement={<Icon as={<FontAwesome name="lock" />} size={5} ml="2" color="muted.400" marginLeft={5} />}
+                onChangeText={onChange}
+                value={value}
+                error={errors.confrimacaoSenha ? errors.confrimacaoSenha.message.toString() : undefined}
               />
             )}
           />
 
-
           <Button 
-            title='Acessar'
+            title='Próximo'
             mt={10}
             mb={1}
-            onPress={handleSubmit(login)}
+            onPress={handleSubmit(profile)}
           />
-          <Button 
-            title='Cadastrar'
-            type='SECONDARY'
-            onPress={() => {navigation.navigate('AppRegister')}}
-          />
-          <Text
-            color='blue.500'
-            fontWeight={'bold'}
-          >
-            Esqueceu sua senha?
-          </Text>
         </Center>
     );
   }
