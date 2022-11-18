@@ -5,6 +5,9 @@ import { Login } from '../screens/Login';
 import { AppRoutes } from './app.routes';
 import { Account } from '../screens/resgister/Account';
 import { Profile } from '../screens/resgister/Profile';
+import { Cnh } from '../screens/resgister/Cnh';
+import { Endereco } from '../screens/resgister/Endereco';
+import { Veiculo } from '../screens/resgister/Veiculo';
 
 const Stack = createStackNavigator();
 
@@ -13,14 +16,16 @@ export function AppRegister() {
     <Stack.Navigator  
       screenOptions={{
         headerShown: true,
-        headerTitle: '',
         headerStyle: {
           shadowColor: 'white'
         }
       }}
     >
-      <Stack.Screen name="Account" component={Account} />
-      <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="Account" component={Account} options={{ title: '', headerTintColor: '#232D42' }}/>
+      <Stack.Screen name="Profile" component={Profile} options={{ title: 'Seus Dados', headerTintColor: '#232D42' }}/>
+      <Stack.Screen name="Cnh" component={Cnh} options={{ title: 'Seus Dados', headerTintColor: '#232D42' }}/>
+      <Stack.Screen name="Endereco" component={Endereco} options={{ title: 'Seu Endereco', headerTintColor: '#232D42' }}/>
+      <Stack.Screen name="Veiculo" component={Veiculo} options={{ title: 'Seu Veículo', headerTintColor: '#232D42' }}/>
     </Stack.Navigator>
   );
 }

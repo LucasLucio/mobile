@@ -73,6 +73,7 @@ export function Login({navigation}) {
                 onChangeText={onChange}
                 value={value}
                 error={errors.email ? errors.email.message.toString() : undefined}
+                autoCapitalize='none'
               />
             )}
           />

@@ -1,7 +1,5 @@
-import { Center, Text, Icon, Button as ButtonNativeBase, Box, useToast} from 'native-base';
+import { Center, Icon, useToast} from 'native-base';
 import { FontAwesome } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NavigationContainer } from '@react-navigation/native';
 
 import CreateLogo from '../../assets/createLogo.svg';
 import { Button } from '../../components/Button';
@@ -10,35 +8,35 @@ import { InputCheck, InputPassword, InputText } from '../../components/Input';
 import {useForm, Controller} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { api } from '../../services/api';
 import React from 'react';
-import { Dialog, DialogInform } from '../../components/AlertDialog';
-import { Toast } from '../../components/Toast';
-import { AppRoutes } from '../../routes/app.routes';
-import { Routes } from '../../routes';
 
 const schemaAccount = yup.object({
   email:
     yup.string()
     .required('Informe seu E-mail.')
     .email("E-mail inválido."),
-  senha:
-    yup.string()
-    .required('Informa a Senha.'),
-  confirmacaoSenha: yup.string()
+  senha: yup.string()
+    .required('Senha é obrigatória.')
+    .min(6, 'A senha deve conter no minímo 6 caracteres.')
+    .max(12, 'A senha deve ser de 6 a 12 caracteres.')
+    .matches(/^(?=.*[a-zA-Z])(?=.*[0-9])/, 'Use combinação de letras e números.'),
+  confirmacaoSenha: yup.string().required('Informe a confirmação de senha.')
      .oneOf([yup.ref('senha'), null], 'As senhas não conferem')
 })
 
 export function Account({navigation}) {
 
-  const toast = useToast();
 
   const { control, handleSubmit, formState: {errors} } = useForm({
     resolver: yupResolver(schemaAccount)
   });
   
   async function account(data){
-    navigation.navigate('Profile', data)
+    let accountRegister = {
+      email: data.email,
+      senha: data.senha,
+    }
+    navigation.navigate('Profile', accountRegister)
   }
 
     return (
@@ -60,6 +58,8 @@ export function Account({navigation}) {
                 onChangeText={onChange}
                 value={value}
                 error={errors.email ? errors.email.message.toString() : undefined}
+                keyboardType='email-address'
+                autoCapitalize='none'
               />
             )}
           />
@@ -80,7 +80,7 @@ export function Account({navigation}) {
 
           <Controller
             control={control}
-            name='confrimacaoSenha'
+            name='confirmacaoSenha'
             render={ ({field: {onChange, value}}) => (
               <InputPassword
                 name='Confirmação de Senha'
