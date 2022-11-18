@@ -10,7 +10,7 @@ import { InputSelect, InputText, ValueSelect } from '../../components/Input';
 import {useForm, Controller} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ViaCep } from '../../utils/ViaCep';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -26,10 +26,8 @@ const schemaAccount = yup.object({
 })
 
 export function Veiculo({route, navigation}) {
-  const valuesTipoVeiculo = (async (): Promisse<ValueSelect[]>? => {
-      
-  });
 
+  const [tiposVeiculo, setTiposVeiculo] = useState([])
   let  accountRegister = route.params;
   const toast = useToast();
 
@@ -37,6 +35,21 @@ export function Veiculo({route, navigation}) {
     resolver: yupResolver(schemaAccount)
   });
   
+  useEffect(() => {
+    async function getTiposVeiculo(){
+      const response = await api.get('/veiculo/tipo-veiculo');
+      var values = [];
+      response.data.map(function (value, i){
+        values.push({
+          name: value.nome,
+          value: value.id
+        })
+      });
+      setTiposVeiculo(values);
+    }
+    
+    getTiposVeiculo()
+  },[])
 
   async function veiculo(data){
     accountRegister.endereco = {
@@ -98,11 +111,7 @@ export function Veiculo({route, navigation}) {
                   marginTop={19}
                   onValueChange={onChange}
                   selectedValue={value}
-                  values={() => 
-                    {
-                      await valuesTipoVeiculo();
-                    }
-                  }
+                  values={tiposVeiculo}
                   error={errors.genero ? errors.genero.message.toString() : undefined}
                 />
               )}
