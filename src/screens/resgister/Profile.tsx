@@ -11,6 +11,8 @@ import {useForm, Controller} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import React, { useState } from 'react';
+import { Keyboard } from 'react-native';
+import { Toast } from '../../components/Toast';
 
 const dayjs = require('dayjs')
 
@@ -62,6 +64,7 @@ export function Profile({route, navigation}) {
 
   const showDatepicker = () => {
     showMode('date');
+    Keyboard.dismiss();
   };
 
 
@@ -71,13 +74,13 @@ export function Profile({route, navigation}) {
   });
   
   async function profile(data){
+    accountRegister.nomeCompleto = data.nomeCompleto;
     accountRegister.cpf = data.cpf;
-    accountRegister.dataNascimento = data.dataNascimento;
+    accountRegister.dataNascimento = dayjs(dataNascimento.toLocaleString()).format('DD/MM/YYYY');
     accountRegister.rg = data.rg;
     accountRegister.celular = data.celular;
     accountRegister.genero = data.genero;
     accountRegister.estadoCivil = data.estadoCivil;
-
     navigation.navigate('Cnh', accountRegister)
   }
 

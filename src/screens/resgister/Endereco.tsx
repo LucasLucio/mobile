@@ -91,6 +91,7 @@ export function Endereco({route, navigation}) {
                 value={value}
                 error={errors.cep ? errors.cep.message.toString() : undefined}
                 maxLength={8}
+                keyboardType='numeric'
                 onEndEditing={async (e: any) => 
                   {
                     await buscaCep(e.nativeEvent.text)

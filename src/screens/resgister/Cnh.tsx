@@ -5,6 +5,7 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Button } from '../../components/Button';
 import { InputText } from '../../components/Input';
 
+import CnhHand from '../../assets/cnh.svg';
 import {useForm, Controller} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -72,14 +73,15 @@ export function Cnh({route, navigation}) {
   async function cnh(data){
     accountRegister.cnh = data.cnh;
     accountRegister.categoria = data.categoria;
-    accountRegister.dataEmissao = data.dataEmissao;
-    accountRegister.dataValidade = data.dataValidade;
+    accountRegister.dataEmissao = dayjs(dataEmissao.toLocaleString()).format('DD/MM/YYYY');
+    accountRegister.dataValidade = dayjs(dataValidade.toLocaleString()).format('DD/MM/YYYY');
 
     navigation.navigate('Endereco', accountRegister)
   }
 
     return (
         <Center flex={1} bgColor="white" padding={8}>
+          <CnhHand height={150} />
           <Controller
             control={control}
             name='cnh'

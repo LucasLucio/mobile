@@ -28,7 +28,7 @@ interface CheckProps extends ICheckboxProps {
 }
 export interface ValueSelect {
     name: string;
-    value: number;
+    value: number | string;
 }
 export interface SelectProps extends ISelectProps {
     name: string;
@@ -41,7 +41,7 @@ export function InputText({ name, error, size, ...rest }: InputProps) {
   return (
     <FormControl isInvalid={error ? true : false} w={size}>
       <Input
-        w="97%"
+        w="96%"
         h={14}
         m={2}
         rounded="xl"
@@ -69,7 +69,7 @@ export function InputPassword({ name, error, ...rest }: InputProps) {
   return (
     <FormControl isInvalid={error ? true : false}>
       <Input
-        w="97%"
+        w="96%"
         h={14}
         m={2}
         rounded="xl"
