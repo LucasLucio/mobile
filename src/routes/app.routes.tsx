@@ -4,6 +4,7 @@ import {Perfil} from '../screens/Perfil';
 import {Localizacoes} from '../screens/Localizacoes';
 import {House, User, MapPinLine} from 'phosphor-react-native'
 import { useTheme } from 'native-base';
+import { Header } from '@react-navigation/stack';
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -26,6 +27,7 @@ export function AppRoutes(){
                 name='home'
                 component={Home}
                 options={{
+                    title: '',
                     tabBarIcon: ({ color }) => <House color={color} size={35}/>
                 }}
             />

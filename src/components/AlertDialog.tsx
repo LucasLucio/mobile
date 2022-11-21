@@ -4,7 +4,7 @@ import Question from '../assets/alertQuestion.svg';
 import Confirm from '../assets/alertConfirm.svg';
 import React from 'react';
 
-interface DialogProps extends IAlertDialogProps{
+export interface DialogProps extends IAlertDialogProps{
     title: string;
     body: string;
     isOpen: boolean;

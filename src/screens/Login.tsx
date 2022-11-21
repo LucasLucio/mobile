@@ -41,6 +41,7 @@ export function Login({navigation}) {
       if(data.lembrar === true){
         const jsonValue = JSON.stringify(data);
         await AsyncStorage.setItem('@login', jsonValue);
+      }else{
         await AsyncStorage.setItem('@token', response.data.token)
       }
       navigation.navigate('AppRoutes');

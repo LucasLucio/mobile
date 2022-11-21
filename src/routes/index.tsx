@@ -3,21 +3,28 @@ import 'react-native-gesture-handler';
 import { AppRoutes } from './app.routes';
 import { AppExternal } from './app-ext.routes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function Routes(){
 
-    const [login, setLogin] = useState(async () => {
-        await getToken();
-    });
+    const [login, setLogin] = useState(false);
     async function getToken(){
         try {
             const tokenValue = await AsyncStorage.getItem('@token')
-            return tokenValue != null ? true : false;
+            console.log(tokenValue);
+            if(tokenValue != null){
+                setLogin(true);
+            }
         } catch(e) {
-          return false;
+            setLogin(false);
         }
-      }
+    }
+
+    useEffect(() => {
+        (async () => {
+            await getToken();
+        })(),false
+    });
     
     return (
         <NavigationContainer>
