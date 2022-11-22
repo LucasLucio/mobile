@@ -5,6 +5,7 @@ import {Localizacoes} from '../screens/Localizacoes';
 import {House, User, MapPinLine} from 'phosphor-react-native'
 import { useTheme } from 'native-base';
 import { Header } from '@react-navigation/stack';
+import { Previsao } from '../screens/Previsao';
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -43,6 +44,15 @@ export function AppRoutes(){
                 component={Perfil}
                 options={{
                     tabBarIcon: ({ color }) => <User color={color} size={35}/>
+                }}
+            />
+            <Screen 
+                name='previsao'
+                component={Previsao}
+
+                options={{
+                    title: '',
+                    tabBarButton: () => null,
                 }}
             />
         </Navigator>

@@ -10,7 +10,7 @@ import { api } from '../services/api';
 import { Loading } from '../components/Loading';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export function Home() {
+export function Home({navigation}) {
     const toast = useToast();
     const [origin, setOrigin] = useState(null);
     const [load, setLoad] = useState(false);
@@ -46,7 +46,6 @@ export function Home() {
         {accuracy: 3}
       );
       const tokenValue = await AsyncStorage.getItem('@token');
-      console.log(tokenValue);
       const response = await api.post('/localizacao/localizacao-atual',{
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
@@ -56,7 +55,7 @@ export function Home() {
       })
         .then(async (response) => {
             setLoad(false);
-            //displayDialog('Sucesso', 'Agora você está pronto para conseguir mais fretes.', 'Ir para o Login');
+            displayDialogInf('Sucesso', 'Agora você está pronto para conseguir mais fretes.', 'Ir para Localizações');
         })
         .catch(async (error) => {
           toast.show({
@@ -72,6 +71,19 @@ export function Home() {
     const [dialogTitle, setDialogTitle] = useState('');
     const [dialogBody, setDialogBody] = useState('');
     const dialogRef = useRef(null);
+
+    const [dialogInfOpen, setDialogInfOpen] = useState(false);
+    const [dialogInfTitle, setDialogInfTitle] = useState('');
+    const [dialogInfBody, setDialogInfBody] = useState('');
+    const [dialogInfConfirmText, setDialogInfConfirmText] = useState('');
+    const dialogInfRef = useRef(null);
+
+    function displayDialogInf(title : string, body: string, confirmText: string){
+      setDialogInfOpen(true);
+      setDialogInfTitle(title);
+      setDialogInfBody(body)
+      setDialogInfConfirmText(confirmText)
+    }
 
     function displayDialog(title: string, body: string){
       setDialogOpen(true);
@@ -90,6 +102,17 @@ export function Home() {
                 onFalse={() => { setDialogOpen(false); }}
                 onTrue={async () => { await enviarLocalizacao() }}
               />
+            <DialogInform
+            title={dialogInfTitle}
+            body={dialogInfBody}
+            cancelRef={dialogInfRef}
+            isOpen={dialogInfOpen}
+            confirmText={dialogInfConfirmText}
+            onConfirm={() => {
+              navigation.navigate('localizacoes');
+            }}
+            leastDestructiveRef={dialogInfRef}
+          />
           <View style={styles.container}>
 
             <MapView
@@ -106,13 +129,14 @@ export function Home() {
               style={{
                 position: 'absolute',
                 bottom: '5%',
-                alignSelf: 'center'
+                alignSelf: 'flex-start'
               }}
             >
               <Button 
                 title='Enviar localização'
                 mt={2}
                 mb={1}
+                mr={115}
                 onPress={() => {displayDialog(
                   'Enviar',
                   'Deseja realmente enviar sua localização atual ?'
@@ -123,6 +147,7 @@ export function Home() {
                 mt={2}
                 mb={1}
                 type='SECONDARY'
+                onPress={() => { navigation.navigate('previsao')}}
               />
             </View>
           </View>
