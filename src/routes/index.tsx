@@ -11,7 +11,6 @@ export function Routes(){
     async function getToken(){
         try {
             const tokenValue = await AsyncStorage.getItem('@token')
-            console.log(tokenValue);
             if(tokenValue != null){
                 setLogin(true);
             }

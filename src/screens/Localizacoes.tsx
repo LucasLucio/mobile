@@ -7,6 +7,9 @@ import {
   VStack,
   HStack,
   Spacer,
+  FlatList,
+  ScrollView,
+  useToast,
 } from "native-base";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "../hooks/useAuth";
@@ -18,17 +21,68 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-import PinAtivo from "../assets/pin-ativo.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CardLoc, CardLocAtual } from "../components/CardLocalizacao";
+import { Toast } from "../components/Toast";
+import { RefreshControl } from "react-native";
+import { Dialog, DialogInform } from "../components/AlertDialog";
 
 const schemaSearch = yup.object({
-  pesquisa: yup.string().required("Informe a busca."),
+  pesquisa: yup.string(),
 });
 
-export function Localizacoes() {
-  const [ultima, setUltima] = useState({});
+interface Ultima {
+  id?: number;
+  tipoLocalizacao?: number;
+  localNome?: string;
+  dataCriacao?: string;
+  dataExpiracao?: string;
+  ativo?: boolean;
+  situacao?: boolean;
+}
+
+export function Localizacoes({navigation}) {
+  const ultimaLoc: Ultima = {};
+  const locs: Ultima[] = [];
+  const [ultima, setUltima] = useState(ultimaLoc);
+  const [localizacoes, setLocalizacoes] = useState(locs);
+  const [refreshing, setRefreshing] = useState(false);
+  const [idLoc, setIdLoc] = useState(0);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogBody, setDialogBody] = useState("");
+  const dialogRef = useRef(null);
+
+  
+  const [dialogInfOpen, setDialogInfOpen] = useState(false);
+  const [dialogInfTitle, setDialogInfTitle] = useState("");
+  const [dialogInfBody, setDialogInfBody] = useState("");
+  const [dialogInfConfirmText, setDialogInfConfirmText] = useState("");
+  const dialogInfRef = useRef(null);
+
+  function displayDialogInf(title: string, body: string, confirmText: string) {
+    setDialogInfOpen(true);
+    setDialogInfTitle(title);
+    setDialogInfBody(body);
+    setDialogInfConfirmText(confirmText);
+  }
+
+  function displayDialog(title: string, body: string) {
+    setDialogOpen(true);
+    setDialogTitle(title);
+    setDialogBody(body);
+  }
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    getUltima();
+    getLocalizacoes();
+  };
+
+  const toast = useToast();
   const {
     control,
     handleSubmit,
@@ -37,24 +91,115 @@ export function Localizacoes() {
     resolver: yupResolver(schemaSearch),
   });
 
-  useEffect(() => {
-    async function getUltima() {
-      const tokenValue = await AsyncStorage.getItem('@token');
-      const response = await api.get("/localizacao/ultima-atual",
-      {
-        headers: { Authorization: `Bearer ${tokenValue}` }
-      });
-      if(response.data != null){
-        setUltima(response.data);
-      }
+  async function getUltima() {
+    const tokenValue = await AsyncStorage.getItem("@token");
+    const response = await api.get("/localizacao/ultima-atual", {
+      headers: { Authorization: `Bearer ${tokenValue}` },
+    });
+    if (response.data != null) {
+      setUltima(response.data);
     }
+  }
+
+  useEffect(() => {
     getUltima();
   }, []);
 
+  async function getLocalizacoes() {
+    const tokenValue = await AsyncStorage.getItem("@token");
+    const response = await api.get("/localizacao/todas-localizacoes", {
+      headers: { Authorization: `Bearer ${tokenValue}` },
+    });
+    if (response.data != null) {
+      setLocalizacoes(response.data);
+      setRefreshing(false);
+    }
+  }
 
+  useEffect(() => {
+    getLocalizacoes();
+  }, []);
+
+  async function buscaLocalizacoes(data) {
+    if (data.pesquisa == "" || data.pesquisa == undefined) {
+      toast.show({
+        render: () => {
+          return (
+            <Toast text={"Informe um valor para a pesquisa."} status="error" />
+          );
+        },
+        placement: "top",
+      });
+      return;
+    }
+    const tokenValue = await AsyncStorage.getItem("@token");
+    const response = await api.get(
+      `/localizacao/busca-nome-local/${data.pesquisa}`,
+      {
+        headers: { Authorization: `Bearer ${tokenValue}` },
+      }
+    );
+    if (response.data != null) {
+      setLocalizacoes(response.data);
+    }
+  }
+
+  function perguntaExcluir(id) {
+    displayDialog("Excluir", "Deseja realmente excluir essa informação?");
+    setIdLoc(id);
+  }
+
+  async function excluir(id) {
+    const tokenValue = await AsyncStorage.getItem("@token");
+    const response = await api
+      .delete(`/localizacao/${id}`, {
+        headers: { Authorization: `Bearer ${tokenValue}` },
+      })
+      .then(async (response) => {
+        displayDialogInf(
+          "Excluido",
+          "A localização foi excluída com sucesso",
+          "Voltar"
+        );
+      })
+      .catch(async (error) => {
+        toast.show({
+          render: () => {
+            return <Toast text={error.response.data.message} status="error" />;
+          },
+          placement: "top",
+        });
+      });
+  }
 
   return (
     <Center flex={1} bgColor="white" padding={8}>
+      <Dialog
+        title={dialogTitle}
+        body={dialogBody}
+        cancelRef={dialogRef}
+        isOpen={dialogOpen}
+        leastDestructiveRef={dialogRef}
+        onFalse={() => {
+          setDialogOpen(false);
+        }}
+        onTrue={async () => {
+          await excluir(idLoc);
+        }}
+      />
+      <DialogInform
+        title={dialogInfTitle}
+        body={dialogInfBody}
+        cancelRef={dialogInfRef}
+        isOpen={dialogInfOpen}
+        confirmText={dialogInfConfirmText}
+        onConfirm={() => {
+          setDialogInfOpen(false);
+          setDialogOpen(false);
+          onRefresh();
+        }}
+        leastDestructiveRef={dialogInfRef}
+      />
       <View
         style={{
           position: "absolute",
@@ -81,11 +226,12 @@ export function Localizacoes() {
                 }
                 InputRightElement={
                   <Icon
-                    as={<FontAwesome name="arrow-circle-o-right" />}
+                    as={<FontAwesome name="check" />}
                     size={5}
                     mr="2"
                     color="blue.500"
                     marginRight={5}
+                    onPress={handleSubmit(buscaLocalizacoes)}
                   />
                 }
                 marginTop={19}
@@ -100,47 +246,47 @@ export function Localizacoes() {
               />
             )}
           />
-          <Box
-            borderWidth="2"
-            borderRadius={15}
-            borderColor="blue.500"
-            py={2}
-            width="100%"
-            marginTop={3}
-          >
-            <HStack space={[2, 3]} justifyContent="space-between" px={3}>
-              <PinAtivo width={50} height={50} />
-              <VStack>
-                <Text color="coolGray.900" bold>
-                </Text>
-                <Text color="coolGray.500" bold>
-                  Data Expire
-                </Text>
-              </VStack>
-              <Spacer />
-              <VStack>
-                <Center>
-                  <Icon
-                    as={<FontAwesome name="trash-o" />}
-                    size={5}
-                    color="red.500"
-                    onPress={() => {console.log('pressionou')}}
-                  />
-                  <Text 
-                    fontSize="xs" 
-                    color="red.500" 
-                    bold 
-                    alignSelf="flex-end"
-                    marginTop={3}
-                  >
-                    Situacao
-                  </Text>
-                </Center>
-              </VStack>
-            </HStack>
-          </Box>
+          {ultima.id != undefined ? (
+            <CardLocAtual
+              nome={ultima.localNome}
+              dataCreate={ultima.dataCriacao}
+              onDelete={async () => {
+                await perguntaExcluir(ultima.id);
+              }}
+              situacao={ultima.situacao}
+            />
+          ) : (
+            <Text>Você ainda não possui localização atual</Text>
+          )}
         </Center>
       </View>
+      <FlatList
+        data={localizacoes}
+        width="full"
+        style={{
+          position: "relative",
+          bottom: "4%",
+        }}
+        marginTop={"63%"}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        renderItem={({ item }) => (
+          <CardLoc
+            nome={item.localNome}
+            tipo={item.tipoLocalizacao}
+            dataCreate={item.dataCriacao}
+            dataExpira={item.dataExpiracao}
+            onDelete={async () => {
+              await perguntaExcluir(item.id);
+            }}
+            situacao={item.situacao}
+          />
+        )}
+        keyExtractor={(item) => item.id.toString()}
+      />
     </Center>
   );
 }

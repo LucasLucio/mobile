@@ -36,7 +36,6 @@ interface DialogInformProps extends IAlertDialogProps{
     setDialogType(dialogProps.Type)
   }
   function dialogReturn(res: boolean){
-    console.log(res);
   }
 
 */
@@ -114,7 +113,6 @@ export function Dialog({title, body, isOpen, cancelRef, onFalse, onTrue}: Dialog
     setDialogConfirmText(confirmText)
   }
   function dialogReturn(res: boolean){
-    console.log(res);
   }
 */
 

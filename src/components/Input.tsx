@@ -139,7 +139,7 @@ export function InputSelect({ name, values, error, size, ...rest }: SelectProps)
         {...rest}
       >
         {values.map(function (value :ValueSelect, i){
-            return (<Select.Item label={value.name} value={`${value.value}`} key={`${value.value}`}/>);
+            return (<Select.Item  label={value.name} value={`${value.value}`} key={`${value.value}`} />);
         })}
       </Select>
       <FormControl.ErrorMessage

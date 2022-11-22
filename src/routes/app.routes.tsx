@@ -6,6 +6,9 @@ import {House, User, MapPinLine} from 'phosphor-react-native'
 import { useTheme } from 'native-base';
 import { Header } from '@react-navigation/stack';
 import { Previsao } from '../screens/Previsao';
+import { Profile } from '../screens/resgister/Profile';
+import { ProfileEdit } from '../screens/edit/ProfileEdit';
+import { AppEdit } from './app-edit.routes';
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -49,6 +52,15 @@ export function AppRoutes(){
             <Screen 
                 name='previsao'
                 component={Previsao}
+
+                options={{
+                    title: '',
+                    tabBarButton: () => null,
+                }}
+            />
+            <Screen 
+                name='edit'
+                component={AppEdit}
 
                 options={{
                     title: '',
