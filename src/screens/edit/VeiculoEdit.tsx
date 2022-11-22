@@ -24,7 +24,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import React, { useEffect, useState } from "react";
 import { ViaCep } from "../../utils/ViaCep";
-import { useAsyncStorage } from "@react-native-async-storage/async-storage";
+import AsyncStorage, { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { Toast } from "../../components/Toast";
 import { api } from "../../services/api";
@@ -53,24 +53,27 @@ const schemaAccount = yup.object({
   categoria: yup.string().required('Categoria da RNTRC é obrigatório'),
 });
 
-export function Veiculo({ route, navigation }) {
+export function VeiculoEdit({ route, navigation }) {
   const [tiposVeiculo, setTiposVeiculo] = useState([]);
   const [tiposCarroceria, setTiposCarroceria] = useState([]);
   const [load, setLoad] = useState(false);
 
-  let accountRegister = route.params;
+  
+  const [idVeiculo, setIdVeiculo] = useState(0);
   const toast = useToast();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setValue
   } = useForm({
     resolver: yupResolver(schemaAccount),
   });
 
-  async function getTiposCarroceria(idVeiculo) {
-    if (idVeiculo == undefined) {
+  async function getTiposCarroceria(idVeiculo: string) {
+
+    if (idVeiculo == undefined && idVeiculo != '') {
       toast.show({
         render: () => {
           return <Toast text={"Informe um tipo de veículo"} status="warning" />;
@@ -104,6 +107,8 @@ export function Veiculo({ route, navigation }) {
     }
 
     getTiposVeiculo();
+    getTiposCarroceria('');
+    getVeiculo();
   }, []);
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -118,36 +123,57 @@ export function Veiculo({ route, navigation }) {
     setDialogConfirmText(confirmText)
   }
   function dialogReturn(res: boolean){
-    navigation.navigate('LoginReturn');
+    navigation.navigate('home');
+  }
+
+  async function getVeiculo() {
+    const tokenValue = await AsyncStorage.getItem("@token");
+    const response = await api.get("/veiculo", {
+      headers: { Authorization: `Bearer ${tokenValue}` },
+    });
+    if (response.data != null) {
+      setValue("placa", response.data.placa); 
+      setValue("eixos", response.data.quantidadeEixo.toString()); 
+      setValue("tipoVeiculo", response.data.tipoVeiculo.id.toString()); 
+      setValue("tipoCarroceria", response.data.tipoCarroceria.id.toString()); 
+      setValue("capacidade", response.data.capacidade.toString()); 
+      setValue("rntrc", response.data.rntrc); 
+      setValue("categoria", response.data.categoria.toString()); 
+      setIdVeiculo(parseInt(response.data.id));
+    }
   }
 
   async function veiculo(data) {
     setLoad(true);
-    accountRegister.veiculo = {
+    const payload = {
+      idVeiculo: idVeiculo,
       placa: data.placa,
       eixos: data.eixos,
       tipoVeiculo: data.tipoVeiculo,
       tipoCarroceria: data.tipoCarroceria,
       capacidade: data.capacidade,
-      categoria: data.categoria,
       rntrc: data.rntrc,
+      categoria: data.categoria,
     }
-    const response = await api.post('/usuario/motorista',accountRegister)
+    const tokenValue = await AsyncStorage.getItem("@token");
+    const response = await api.put('/veiculo',payload,{
+      headers: { Authorization: `Bearer ${tokenValue}` },
+    })
     .then(async (response) => {
       setLoad(false);
-      displayDialog('Sucesso', 'Agora você está pronto para conseguir mais fretes.', 'Ir para o Login');
+      displayDialog('Sucesso', 'Dados do veíulo alterado', 'Voltar');
     })
     .catch((error) => {
       setLoad(false);
+      console.log(error.response.data)
       toast.show({
         render: () => {
-          return <Toast text={error.response.data.errors.join(', ')} status='error' />;
+          return <Toast text={"Ocorreu um erro ao editar o veículo"} status='error' />;
         },
         placement: 'top'
       });
       
     });
-
   }
   return (
     <Center>
@@ -162,7 +188,15 @@ export function Veiculo({ route, navigation }) {
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
       >  
-            <Center flex={1} bgColor="white" padding={8}>
+            <Center 
+              flex={1} 
+              bgColor="white"
+              padding={8}
+              style={{
+                bottom: '5%'
+              }}
+              mt={20}
+            >
               <DialogInform 
                 title={dialogTitle} 
                 body={dialogBody}

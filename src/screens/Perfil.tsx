@@ -1,14 +1,17 @@
-import { Center, Text, Icon, Box, HStack, VStack, Spacer } from "native-base";
+import { Center, Text, Icon, Box, HStack, VStack, Spacer, useToast } from "native-base";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "../hooks/useAuth";
+import {Restart} from 'fiction-expo-restart';
 
 import Usuario from "../assets/usuario.svg";
 import { Button } from "../components/Button";
 import { InputCheck, InputPassword, InputText } from "../components/Input";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../services/api";
 import { CommonActions } from "@react-navigation/native";
+import { Dialog } from "../components/AlertDialog";
+import { Toast } from "../components/Toast";
 
 export function Perfil({ navigation }) {
   const [nome, setNome] = useState("");
@@ -25,11 +28,56 @@ export function Perfil({ navigation }) {
       setDados(response.data);
     }
   }
+
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogBody, setDialogBody] = useState("");
+  const dialogRef = useRef(null);
+  function displayDialog(title: string, body: string) {
+    setDialogOpen(true);
+    setDialogTitle(title);
+    setDialogBody(body);
+  }
+
+
   useEffect(() => {
     getUsuario();
   }, [getUsuario]);
+
+  const toast = useToast();
+
+  async function sair(){
+    try {
+      await AsyncStorage.clear();
+      Restart();
+    } catch(e) {
+      toast.show({
+        render: () => {
+          return <Toast text={'Erro ao sair do aplicativo.'} status="error" />;
+        },
+        placement: "top",
+      });
+    }
+  }
+
+
+
   return (
     <Center flex={1} bgColor="white" padding={8}>
+      <Dialog
+        title={dialogTitle}
+        body={dialogBody}
+        cancelRef={dialogRef}
+        isOpen={dialogOpen}
+        leastDestructiveRef={dialogRef}
+        onFalse={() => {
+          setDialogOpen(false);
+        }}
+        onTrue={async () => {
+          //await excluir(idLoc);
+        }}
+      />
       <Usuario height={150} />
       <Text color={"blue.900"} fontSize="lg" bold>
         {nome}
@@ -125,7 +173,14 @@ export function Perfil({ navigation }) {
           />
 
           <VStack>
-            <Text color="red.500" fontWeight={"semibold"} fontSize="lg">
+            <Text 
+              color="red.500" 
+              fontWeight={"semibold"} 
+              fontSize="lg"
+              onPress={() => {
+                displayDialog('Sair','Deseja realmente sair do aplicativo?');
+              }}
+            >
               Sair
             </Text>
           </VStack>

@@ -9,6 +9,8 @@ import { Previsao } from '../screens/Previsao';
 import { Profile } from '../screens/resgister/Profile';
 import { ProfileEdit } from '../screens/edit/ProfileEdit';
 import { AppEdit } from './app-edit.routes';
+import { VeiculoEdit } from '../screens/edit/VeiculoEdit';
+import { AppExternal } from './app-ext.routes';
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -61,6 +63,24 @@ export function AppRoutes(){
             <Screen 
                 name='edit'
                 component={AppEdit}
+
+                options={{
+                    title: '',
+                    tabBarButton: () => null,
+                }}
+            />
+            <Screen 
+                name='veiculo'
+                component={VeiculoEdit}
+
+                options={{
+                    title: '',
+                    tabBarButton: () => null,
+                }}
+            />
+            <Screen 
+                name='login'
+                component={AppExternal}
 
                 options={{
                     title: '',

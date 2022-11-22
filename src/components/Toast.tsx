@@ -22,7 +22,7 @@ export function Toast({text, status}: Props){
                 <HStack space={2} flexShrink={1}>
                     <Alert.Icon mt="1" color='white' />
                     <Text fontSize="md" color="white" >
-                        {text} [Erro]
+                        {text} - tente novamente.
                     </Text>
                 </HStack>
             </HStack>
