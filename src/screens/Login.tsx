@@ -57,6 +57,32 @@ export function Login({navigation}) {
     
   }
 
+  async function redefinirBuscaEmail(email: string){
+    if(email == '' || email == undefined){
+      toast.show({
+        render: () => {
+          return <Toast text={'Informe um email'} status='error' />;
+        },
+        placement: 'top'
+      });
+    }
+    const response = await api.get(`/usuario/meios-recuperacao/${email}`)
+    .then(async (response) => {
+      if(response.data){
+        let meios = response.data;
+        navigation.navigate('AppRoutes', meios);
+      }
+    })
+    .catch((error) => {
+      toast.show({
+        render: () => {
+          return <Toast text={error.response.data.message} status='error' />;
+        },
+        placement: 'top'
+      });
+    });
+  }
+
     return (
         <Center flex={1} bgColor="white" padding={8}>
           <Logo 
@@ -120,6 +146,9 @@ export function Login({navigation}) {
           <Text
             color='blue.500'
             fontWeight={'bold'}
+            onPress={async () => {
+              await redefinirBuscaEmail(control._formValues.email); 
+            }}
           >
             Esqueceu sua senha?
           </Text>

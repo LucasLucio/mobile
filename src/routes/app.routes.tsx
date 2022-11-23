@@ -81,10 +81,11 @@ export function AppRoutes(){
             <Screen 
                 name='login'
                 component={AppExternal}
-
+                
                 options={{
                     title: '',
                     tabBarButton: () => null,
+                    
                 }}
             />
         </Navigator>

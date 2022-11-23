@@ -1,7 +1,6 @@
 import { Center, Text, Icon, Box, HStack, VStack, Spacer, useToast } from "native-base";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "../hooks/useAuth";
-import {Restart} from 'fiction-expo-restart';
 
 import Usuario from "../assets/usuario.svg";
 import { Button } from "../components/Button";
@@ -9,7 +8,7 @@ import { InputCheck, InputPassword, InputText } from "../components/Input";
 import { useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../services/api";
-import { CommonActions } from "@react-navigation/native";
+import { CommonActions, StackActions } from "@react-navigation/native";
 import { Dialog } from "../components/AlertDialog";
 import { Toast } from "../components/Toast";
 
@@ -50,7 +49,7 @@ export function Perfil({ navigation }) {
   async function sair(){
     try {
       await AsyncStorage.clear();
-      Restart();
+      navigation.dispatch(StackActions.popToTop());
     } catch(e) {
       toast.show({
         render: () => {
@@ -75,7 +74,7 @@ export function Perfil({ navigation }) {
           setDialogOpen(false);
         }}
         onTrue={async () => {
-          //await excluir(idLoc);
+          await sair();
         }}
       />
       <Usuario height={150} />
