@@ -153,7 +153,14 @@ export function Previsao({navigation}) {
       headers: { Authorization: `Bearer ${tokenValue}` }
     })
     .then(async (response) => {
-      displayDialog('Enviado', 'Sua previsão foi enviada você pode ver ela em Localizações', 'Ir para o Localizações');
+      console.log(response.data);
+      //displayDialog('Enviado', 'Sua previsão foi enviada você pode ver ela em Localizações', 'Ir para o Localizações');
+      toast.show({
+        render: () => {
+          return <Toast text={'Sua previsão foi enviada você pode ver ela em Localizações'} status='success' />;
+        },
+        placement: 'top'
+      });
     })
     .catch((error) => {
       toast.show({
@@ -162,7 +169,6 @@ export function Previsao({navigation}) {
         },
         placement: 'top'
       });
-      
     });
 
   }
@@ -177,6 +183,17 @@ export function Previsao({navigation}) {
   });
   return (
     <Center flex={1} bgColor="white" padding={8}>
+      <DialogInform
+        title={dialogTitle}
+        body={dialogBody}
+        cancelRef={dialogRef}
+        isOpen={dialogOpen}
+        confirmText={dialogConfirmText}
+        onConfirm={() => {
+          navigation.navigate('localizacoes');
+        }}
+        leastDestructiveRef={dialogRef}
+      />
       <ScrollView
         w="full"
         h="full"
@@ -184,17 +201,6 @@ export function Previsao({navigation}) {
         showsVerticalScrollIndicator={false}
       >
         <Center flex={1} bgColor="white" pt={10}>
-          <DialogInform
-            title={dialogTitle}
-            body={dialogBody}
-            cancelRef={dialogRef}
-            isOpen={dialogOpen}
-            confirmText={dialogConfirmText}
-            onConfirm={() => {
-              navigation.navigate('localizacoes');
-            }}
-            leastDestructiveRef={dialogRef}
-          />
           <Text
             color={'blue.900'}
             fontSize='lg'

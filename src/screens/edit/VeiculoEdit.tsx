@@ -361,7 +361,7 @@ export function VeiculoEdit({ route, navigation }) {
               />
 
               <Button
-                title="Finalizar"
+                title="Salvar"
                 mt={10}
                 mb={1}
                 onPress={handleSubmit(veiculo)}

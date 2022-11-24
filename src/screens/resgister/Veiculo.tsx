@@ -10,7 +10,7 @@ import {
   VStack,
 } from "native-base";
 import { FontAwesome } from "@expo/vector-icons";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, StackActions } from "@react-navigation/native";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 
 import Truck from "../../assets/truck.svg";
@@ -141,7 +141,11 @@ export function Veiculo({ route, navigation }) {
       setLoad(false);
       toast.show({
         render: () => {
-          return <Toast text={error.response.data.errors.join(', ')} status='error' />;
+          if(error.response.data.message != undefined){
+            return <Toast text={error.response.data.message} status='error' />;
+          }else{
+            return <Toast text={error.response.data.errors.join(', ')} status='error' />;
+          }
         },
         placement: 'top'
       });

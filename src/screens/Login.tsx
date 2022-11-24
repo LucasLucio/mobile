@@ -41,9 +41,8 @@ export function Login({navigation}) {
       if(data.lembrar === true){
         const jsonValue = JSON.stringify(data);
         await AsyncStorage.setItem('@login', jsonValue);
-      }else{
-        await AsyncStorage.setItem('@token', response.data.token)
       }
+      await AsyncStorage.setItem('@token', response.data.token);
       navigation.navigate('AppRoutes');
     })
     .catch((error) => {
@@ -69,8 +68,9 @@ export function Login({navigation}) {
     const response = await api.get(`/usuario/meios-recuperacao/${email}`)
     .then(async (response) => {
       if(response.data){
+        console.log(response.data);
         let meios = response.data;
-        navigation.navigate('AppRoutes', meios);
+        navigation.navigate('EmailVerify', meios);
       }
     })
     .catch((error) => {

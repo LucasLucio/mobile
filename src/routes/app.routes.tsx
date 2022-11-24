@@ -78,16 +78,6 @@ export function AppRoutes(){
                     tabBarButton: () => null,
                 }}
             />
-            <Screen 
-                name='login'
-                component={AppExternal}
-                
-                options={{
-                    title: '',
-                    tabBarButton: () => null,
-                    
-                }}
-            />
         </Navigator>
     );
 }

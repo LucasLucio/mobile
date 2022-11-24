@@ -6,10 +6,28 @@ interface Props{
 }
 
 export function Toast({text, status}: Props){
+    let prefix = '';
+    switch (status) {
+        case 'success':
+            prefix = 'Sucesso, deu tudo certo.'
+            break;
+        case 'error':
+            prefix = 'Erro, ocoreu um problema.'
+            break;
+        case 'info':
+            prefix = 'Informação.'
+            break;
+        case 'warning':
+            prefix = 'Aviso, leia com atenção.'
+            break;
+    
+        default:
+            break;
+    }
     return(
             <Alert 
                 borderRadius='full' 
-                w="90%" 
+                w="100%" 
                 mt={5}
                 status={status} 
                 variant='solid' 
@@ -22,7 +40,7 @@ export function Toast({text, status}: Props){
                 <HStack space={2} flexShrink={1}>
                     <Alert.Icon mt="1" color='white' />
                     <Text fontSize="md" color="white" >
-                        {text} - tente novamente.
+                        {prefix} {text}
                     </Text>
                 </HStack>
             </HStack>
