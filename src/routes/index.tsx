@@ -42,9 +42,24 @@ export function Routes(){
             },
             placement: 'top'
           });
+          sair();
         });
         
     }
+
+
+    async function sair(){
+        try {
+          await AsyncStorage.clear();
+        } catch(e) {
+          toast.show({
+            render: () => {
+              return <Toast text={'Erro ao sair do aplicativo.'} status="error" />;
+            },
+            placement: "top",
+          });
+        }
+      }
 
     useEffect(() => {
         (async () => {
